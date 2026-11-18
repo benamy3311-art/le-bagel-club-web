@@ -1,7 +1,6 @@
 // Bagel Pollo Plancha en three.js. Se arma con el progreso del desplazamiento (0 a 1).
 // Interfaz común con la secuencia de vídeo: crearEscena(canvas) -> { progreso(p), tamano(), listo }
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -53,7 +52,7 @@ function coserCostura(g, seg, filas) {
 // Si existe web-3d/texturas/<nombre>.(webp|jpg|png), sustituye la textura generada por código.
 const cargador = new THREE.TextureLoader();
 export const texturasCargadas = [];
-function vestir(material, nombre, { repetir = false, relieve = 0, mezclarColor = false, campo = 'map', escala = 0 } = {}) {
+function vestir(material, nombre, { repetir = false, relieve = 0, mezclarColor = false, campo = 'map', escala = 0, rugosidad = false } = {}) {
   const exts = ['webp', 'jpg', 'png'];
   const probar = k => {
     if (k >= exts.length) return;
@@ -63,6 +62,7 @@ function vestir(material, nombre, { repetir = false, relieve = 0, mezclarColor =
       if (escala) { t.repeat.set(escala, escala); t.offset.set(0.5, 0.5); }
       material[campo] = t; material.color.set('#FFFFFF');
       if (relieve) { material.bumpMap = t; material.bumpScale = relieve; }
+      if (rugosidad) material.roughnessMap = t;
       if (mezclarColor && material.vertexColors) {
         // La foto pone el detalle; los colores de vértice solo oscurecen lo más horneado.
         material.vertexColors = false; material.color.set('#FFFFFF');
@@ -106,8 +106,8 @@ function corteza(arriba) {
   g.setAttribute('color', new THREE.BufferAttribute(colores, 3));
   g.computeVertexNormals(); coserCostura(g, SEG, pts.length);
   const m = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.5, clearcoat: 0.5, clearcoatRoughness: 0.32, sheen: 0.15, sheenColor: col('#E8A860'), sheenRoughness: 0.5 });
-  vestir(m, 'corteza', { repetir: true, relieve: 0.7, mezclarColor: true });
-  m.userData.alCargar = () => { m.roughness = 0.42; m.clearcoat = 0.6; };
+  vestir(m, 'corteza', { repetir: true, relieve: 0.7, mezclarColor: true, rugosidad: true });
+  m.userData.alCargar = () => { m.roughness = 0.8; m.clearcoat = 0.42; m.clearcoatRoughness = 0.32; m.color.set('#F4ECE0'); };   // tinte que baja un punto la saturación de la foto   // con mapa: zonas claras mate, tostadas más brillantes
   return new THREE.Mesh(g, m);
 }
 
@@ -177,7 +177,7 @@ function losa(rIn, rOut, grosor, ondas, sem, caida = 0) {
 }
 
 function quesoCrema() {
-  return new THREE.Mesh(losa(0.6, 1.34, 0.04, 0.1, 3), new THREE.MeshPhysicalMaterial({ color: '#F3EEE4', roughness: 0.42, clearcoat: 0.25, sheen: 0.5, sheenColor: col('#FFFFFF') }));
+  return new THREE.Mesh(losa(0.6, 1.34, 0.04, 0.1, 3), new THREE.MeshPhysicalMaterial({ color: '#F4EFE5', roughness: 0.46, clearcoat: 0.3, clearcoatRoughness: 0.35, sheen: 0.4, sheenColor: col('#FFFFFF') }));
 }
 
 const texPollo = lienzo(512, (x, t) => {
@@ -234,8 +234,10 @@ function pollo() {
   g.setIndex(idx); g.computeVertexNormals();
   // Si la cara de arriba quedó mirando hacia abajo, se invierte el sentido de los triángulos.
   const n = g.attributes.normal; if (n.getY(NA * 10) < 0) { const ix = g.index.array; for (let t = 0; t < ix.length; t += 3) [ix[t + 1], ix[t + 2]] = [ix[t + 2], ix[t + 1]]; g.index.needsUpdate = true; g.computeVertexNormals(); }
-  const m = new THREE.MeshPhysicalMaterial({ map: texPollo, bumpMap: texPollo, bumpScale: 2, roughness: 0.5, clearcoat: 0.35, clearcoatRoughness: 0.35 });
-  vestir(m, 'pollo', { relieve: 2.5 });
+  // Pechuga jugosa: barniz fino que da el brillo de los jugos sobre la superficie mate de la carne
+  const m = new THREE.MeshPhysicalMaterial({ map: texPollo, bumpMap: texPollo, bumpScale: 2, roughness: 0.62, clearcoat: 0.55, clearcoatRoughness: 0.22, sheen: 0.12, sheenColor: col('#F5D3A0') });
+  m.userData.alCargar = () => m.color.set('#EEE4D6');   // la foto del pollo, con este tono de color, se iba a naranja
+  vestir(m, 'pollo', { relieve: 2.5, rugosidad: true });
   return new THREE.Mesh(g, m);
 }
 
@@ -266,7 +268,7 @@ function peperoni() {
 
 function mozzarella() {
   const gr = new THREE.Group();
-  const m = new THREE.MeshPhysicalMaterial({ color: '#F1E7CF', roughness: 0.42, sheen: 0.7, sheenColor: col('#FFF6E0'), clearcoat: 0.25, clearcoatRoughness: 0.4, side: THREE.DoubleSide });
+  const m = new THREE.MeshPhysicalMaterial({ color: '#F3E9D2', emissive: col('#403D37'), roughness: 0.4, sheen: 0.6, sheenColor: col('#FFF6E0'), clearcoat: 0.3, clearcoatRoughness: 0.35, side: THREE.DoubleSide });   // sin translucidez: en láminas tan finas toma el color de lo que hay detrás y se ve metálica
   vestir(m, 'mozzarella', { escala: 1.0, relieve: 1 });
   const sitios = [[-0.95, -0.25, 0.3], [-0.25, 0.4, -0.4], [0.5, -0.3, 0.5], [1.05, 0.3, -0.2], [0.15, -0.85, 1.1], [-0.65, 0.85, 0.9]];
   sitios.forEach(([lx, lz, rot], i) => {
@@ -306,11 +308,12 @@ const texTomate = lienzo(512, (x, t) => {
 });
 function tomate() {
   const gr = new THREE.Group(), n = 5;
-  const lado = new THREE.MeshPhysicalMaterial({ color: '#A3170E', roughness: 0.22, clearcoat: 0.8 });
-  const cara = new THREE.MeshPhysicalMaterial({ map: texTomate, roughness: 0.2, clearcoat: 0.9, clearcoatRoughness: 0.15 });
+  const lado = new THREE.MeshPhysicalMaterial({ color: '#A3170E', roughness: 0.2, clearcoat: 0.9, transmission: 0.25, thickness: 0.05, attenuationColor: col('#C0251A'), attenuationDistance: 0.08 });
+  // Pulpa húmeda: capa de barniz muy lisa y algo de luz que atraviesa el gel
+  const cara = new THREE.MeshPhysicalMaterial({ map: texTomate, roughness: 0.24, clearcoat: 1, clearcoatRoughness: 0.06, transmission: 0.3, thickness: 0.05, attenuationColor: col('#E0482E'), attenuationDistance: 0.1, ior: 1.36 });
   vestir(cara, 'tomate', { relieve: 0.8 });
   for (let i = 0; i < n; i++) {
-    const g = new THREE.CylinderGeometry(0.6, 0.6, 0.05, 72, 1);
+    const g = new THREE.CylinderGeometry(0.585, 0.6, 0.05, 96, 2);
     const pos = g.attributes.position;
     for (let k = 0; k < pos.count; k++) { const x = pos.getX(k), z = pos.getZ(k); pos.setY(k, pos.getY(k) + (fbm(x * 3 + i, z * 3, 5) - 0.5) * 0.02); }
     g.computeVertexNormals();
@@ -363,7 +366,7 @@ function aguacate() {
   // Medialunas en abanico, a lo largo de la pechuga.
   const gr = new THREE.Group(), n = 6;
   const base = rodajaAguacate();
-  const m = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.32, clearcoat: 0.5, clearcoatRoughness: 0.2, side: THREE.DoubleSide });
+  const m = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.3, clearcoat: 0.6, clearcoatRoughness: 0.15, side: THREE.DoubleSide, transmission: 0.15, thickness: 0.05, attenuationColor: col('#C9D36A'), attenuationDistance: 0.2, ior: 1.36 });
   for (let i = 0; i < n; i++) {
     const g = base.clone(), t = i / (n - 1);
     const lx = -1.15 + t * 2.25, lz = Math.sin(t * Math.PI * 2) * 0.16 + (i % 2 ? 0.14 : -0.14);
@@ -393,26 +396,47 @@ function salsa() {
   return new THREE.Mesh(g, new THREE.MeshPhysicalMaterial({ color: '#EC9A63', roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.08 }));
 }
 
+// ───────── Estudio de luz ─────────
+// Un estudio de foto de comida hecho de paneles que emiten luz: softbox grande a la izquierda (la luz principal,
+// la misma dirección que usa la página), relleno pequeño a la derecha, tira cenital y rebote cálido de la mesa.
+// Los reflejos de la corteza, el tomate y el queso salen de estos paneles.
+function estudio() {
+  const sala = new THREE.Scene();
+  // Paredes claras: así lo brillante (corteza, tomate) no refleja negro.
+  const caja = new THREE.Mesh(new THREE.BoxGeometry(14, 9, 14), new THREE.MeshBasicMaterial({ color: col('#B9AA92'), side: THREE.BackSide }));
+  sala.add(caja);
+  const panel = (w, h, color, fuerza, pos, mira) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: col(color).multiplyScalar(fuerza), side: THREE.DoubleSide }));
+    m.position.set(...pos); m.lookAt(...mira); sala.add(m);
+  };
+  panel(5, 4.5, '#FFF7EE', 9, [-5.5, 3.2, 3], [0, 0, 0]);     // softbox principal
+  panel(2.2, 3, '#FFF6EC', 2.2, [5.5, 1.8, 2.5], [0, 0, 0]);   // relleno
+  panel(7, 1.2, '#FFFFFF', 4, [0, 4.4, -1], [0, 0, 0]);         // tira cenital
+  panel(3, 2, '#FFD7A8', 2.5, [2.5, 2, -5.5], [0, 0, 0]);      // contraluz cálido
+  panel(14, 14, '#EBDDC4', 0.6, [0, -4.4, 0], [0, 0, 0]);      // rebote de la mesa
+  return sala;
+}
+
 // ───────── Escena ─────────
 export function crearEscena(canvas, { desplazado = true, centroMovil = 0.12, bajadaInicio = 0, oclusion = true } = {}) {
   const render = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   render.setPixelRatio(Math.min(devicePixelRatio, 2));
   render.outputColorSpace = THREE.SRGBColorSpace;
-  render.toneMapping = THREE.ACESFilmicToneMapping; render.toneMappingExposure = 1.0;
+  render.toneMapping = THREE.NeutralToneMapping; render.toneMappingExposure = 1.0;   // Khronos PBR Neutral: respeta el color del producto
   render.shadowMap.enabled = true; render.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const escena = new THREE.Scene();
   const pm = new THREE.PMREMGenerator(render);
-  escena.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
-  escena.environmentIntensity = 0.6;
+  escena.environment = pm.fromScene(estudio(), 0.03).texture;
+  escena.environmentIntensity = 0.62;
 
   const camara = new THREE.PerspectiveCamera(28, 1, 0.1, 60);
 
-  const clave = new THREE.DirectionalLight('#FFE2BF', 2.6); clave.position.set(-3, 5, 3.5); clave.castShadow = true;
+  const clave = new THREE.DirectionalLight('#FFF5EA', 2.5);   // casi neutra: la comida pone su propio color clave.position.set(-3, 5, 3.5); clave.castShadow = true;
   clave.shadow.mapSize.set(2048, 2048); clave.shadow.radius = 6; clave.shadow.bias = -0.0004;
   Object.assign(clave.shadow.camera, { left: -2.5, right: 2.5, top: 2.5, bottom: -2.5, near: 1, far: 15 });
-  const contra = new THREE.DirectionalLight('#FFD2A0', 1.8); contra.position.set(2.5, 2.2, -4);
-  const relleno = new THREE.DirectionalLight('#FFF4E6', 0.5); relleno.position.set(4, 1, 3);
+  const contra = new THREE.DirectionalLight('#FFE2C4', 1.5); contra.position.set(2.5, 2.2, -4);
+  const relleno = new THREE.DirectionalLight('#F4F1EC', 0.55); relleno.position.set(4, 1, 3);
   escena.add(clave, contra, relleno);
 
   const mundo = new THREE.Group(); escena.add(mundo);
@@ -435,7 +459,7 @@ export function crearEscena(canvas, { desplazado = true, centroMovil = 0.12, baj
 
   bagel.traverse(o => { if (o.isMesh || o.isInstancedMesh) { o.castShadow = true; o.receiveShadow = true; } });
 
-  const suelo = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.ShadowMaterial({ opacity: 0.3, color: '#4A2A10' }));
+  const suelo = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.ShadowMaterial({ opacity: 0.38, color: '#4A2A10' }));
   suelo.rotation.x = -Math.PI / 2; suelo.position.y = -0.43; suelo.receiveShadow = true; mundo.add(suelo);
 
 
