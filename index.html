@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Le Bagel Club</title>
+<meta name="theme-color" content="#FCF3DB">
+<meta name="description" content="Bagels hervidos y horneados en Chapinero desde 2005. Carta, cómo se arma el Pollo Plancha y cómo llegar a la Cra. 14 #79-47, Bogotá.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Le Bagel Club · Bagels de verdad, desde 2005">
+<meta property="og:description" content="Bagels, café y panadería en Chapinero. Cra. 14 #79-47, Bogotá.">
+<meta property="og:url" content="https://benamy3311-art.github.io/le-bagel-club-web/">
+<meta property="og:image" content="https://benamy3311-art.github.io/le-bagel-club-web/img/compartir.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="img/logo-carbon.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+<style>
+:root {
+  /* Paleta: marfil de base, café tinta para leer, rojo tomate tostado solo para pedir y precios destacados.
+     El resto del color lo ponen el dorado del pan y el verde del aguacate, desde las fotos. */
+  /* Manual de marca: cuatro colores. Todo lo demás son transparencias del carbón o de la crema. */
+  --crema: #FCF3DB;      /* fondo de página y superficies claras */
+  --carbon: #151625;     /* texto, superficies oscuras, bordes y foco */
+  --naranja: #E8781C;    /* acción principal y acentos con texto carbón encima (6,1:1). Nunca como texto o icono sobre crema (2,7:1) */
+  --amarillo: #FEB600;   /* bloques de color con texto carbón (10,2:1). Nunca como texto o icono sobre crema (1,6:1) */
+  --tinta: var(--carbon);
+  --tinta-2: rgba(21, 22, 37, 0.7);    /* 6,4:1 sobre crema: descripciones, navegación */
+  --tinta-3: rgba(21, 22, 37, 0.62);   /* 4,8:1 sobre crema: texto pequeño secundario */
+  --linea: rgba(21, 22, 37, 0.14);     /* separadores decorativos */
+  --subrayado: rgba(21, 22, 37, 0.6);  /* subrayado de enlaces, 4,6:1 */
+  --crema-2: rgba(252, 243, 219, 0.72); /* texto secundario sobre carbón, 8,4:1 */
+  --titulo: 'Fraunces', Georgia, serif;
+  --texto: 'Instrument Sans', system-ui, sans-serif;
+  --mono: 'Space Mono', ui-monospace, monospace;
+  --lado: clamp(20px, 3.2vw, 48px);
+  --radio: 18px;
+  --salida: cubic-bezier(.22, 1, .36, 1);
+  --muelle: cubic-bezier(.34, 1.4, .64, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--crema); overflow-x: clip; }
+body { font: 400 16px/1.55 var(--texto); color: var(--tinta); background: var(--crema); overflow-x: clip; -webkit-font-smoothing: antialiased; }
+img { display: block; max-width: 100%; }
+:focus-visible { outline: 2.5px solid var(--carbon); outline-offset: 3px; border-radius: 6px; }
+.casa :focus-visible { outline-color: var(--crema); }
+::selection { background: var(--amarillo); color: var(--carbon); }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+h1, h2, h3 { font-family: var(--titulo); font-weight: 600; font-optical-sizing: auto; letter-spacing: normal; }
+
+/* Botones planos: la profundidad la pone la foto, no el botón */
+.pedir { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 48px; padding: 0 26px; border-radius: 999px; background: var(--naranja); color: var(--carbon); font: 600 16px/1 var(--texto); transition: background .2s, transform .35s var(--muelle); }
+.pedir:hover { transform: translateY(-1px); }
+.secundario { display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--carbon); font: 600 16px/1 var(--texto); transition: background .2s, color .2s; }
+.secundario:hover { background: var(--carbon); color: var(--crema); }
+.pedir:active { transform: scale(.97); transition-duration: .08s; }
+.pedir svg { width: 16px; height: 16px; transition: transform .35s var(--muelle); }
+.pedir:hover svg { transform: translateX(3px); }
+.enlace { font: 500 16px/1 var(--texto); border-bottom: 1.5px solid var(--subrayado); padding-bottom: 4px; transition: border-color .2s; }
+.enlace:hover { border-color: var(--tinta); }
+.antetitulo { font: 500 14px/1.3 var(--texto); color: var(--tinta-2); letter-spacing: 0.01em; }
+
+/* Encabezado */
+.cabecera { position: sticky; top: 0; z-index: 30; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 32px; padding: 14px var(--lado); background: var(--crema); color: var(--carbon); border-bottom: 1px solid transparent; transition: border-color .3s; }
+.cabecera.con-borde { border-color: var(--linea); }
+.cabecera__logo img { height: 40px; width: auto; }
+.cabecera nav { display: flex; gap: 28px; font: 500 15px/1 var(--texto); color: var(--tinta-2); }
+.cabecera nav a:hover { color: var(--carbon); }
+.cabecera .pedir { height: 42px; padding: 0 20px; font-size: 15px; }
+
+/* ───── Acto 1: el producto terminado ───── */
+.portada { position: relative; display: flex; flex-direction: column; min-height: calc(100svh - 68px); background: var(--crema); overflow: hidden; }
+.portada__cuerpo { flex: 1; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 0 var(--lado); }
+.portada__texto { position: relative; z-index: 2; padding: 32px 0 56px; }
+.portada__texto h1 { font-size: clamp(56px, 7vw, 116px); line-height: 0.96; margin: 18px 0 22px; }
+.portada__texto p { font-size: 18px; color: var(--tinta-2); max-width: 34ch; margin-bottom: 26px; }
+.portada__acciones { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.portada__escena { position: relative; align-self: stretch; margin-right: calc(var(--lado) * -1); overflow: hidden; }
+.portada__sol { position: absolute; right: -6vw; top: 50%; width: min(52vw, 760px); aspect-ratio: 1; border-radius: 50%; background: var(--amarillo); transform: translateY(-52%); }
+.portada__mano { position: absolute; right: calc(var(--lado) * -1 - 4vw); bottom: -2%; height: 108%; width: auto; max-width: none; }
+.estado-local { display: inline-flex; align-items: center; gap: 8px; font: 500 14px/1 var(--texto); }
+.estado-local i { width: 9px; height: 9px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--tinta-2); }
+.estado-local.abierto i { background: var(--carbon); box-shadow: 0 0 0 4px var(--amarillo); }
+.familias { position: relative; z-index: 3; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1.5px solid var(--carbon); background: var(--crema); }
+.familias a { display: flex; justify-content: space-between; align-items: baseline; padding: 18px var(--lado); font: 600 18px/1 var(--texto); transition: background .2s; }
+.familias a + a { border-left: 1px solid var(--linea); }
+.familias a:hover { background: var(--amarillo); }
+.familias span { font: 400 13px/1 var(--texto); color: var(--tinta-2); }
+.familia { scroll-margin-top: 84px; }
+
+/* ───── Acto 2: cómo se arma ───── */
+.armado { position: relative; height: 520vh; background: var(--crema); }
+.armado__fija::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: .16; mix-blend-mode: overlay;
+  /* Grano fino de foto encima del 3D. Gris medio en modo superposición: de media no cambia el color del fondo */
+  background-image: url('img/grano.png'); background-size: 256px; }
+.armado__fija { position: sticky; top: 68px; height: calc(100svh - 68px); overflow: hidden; background: var(--crema); }
+.armado__cabeza { position: absolute; left: var(--lado); top: 40px; z-index: 2; }
+.armado__cabeza h2 { font-size: clamp(32px, 3.2vw, 48px); line-height: 1.05; margin-top: 10px; }
+#lienzo { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .8s var(--salida); }
+#lienzo.listo { opacity: 1; }
+.respaldo { position: absolute; left: 50%; top: 50%; width: min(42vw, 560px); transform: translate(-50%, -50%); border-radius: 50%; transition: opacity .5s; }
+.respaldo.fuera { opacity: 0; }
+.estado { position: absolute; left: var(--lado); bottom: 56px; z-index: 2; width: min(28vw, 360px); }
+.estado__num { font: 400 12px/1 var(--mono); color: var(--tinta-2); text-transform: uppercase; }
+.estado__nombre { display: block; margin: 12px 0 10px; font: 600 clamp(36px, 3.6vw, 56px)/1.02 var(--titulo); }
+.estado__nombre .l { display: inline-block; transition: transform .5s var(--salida), opacity .35s; }
+.estado__desc { color: var(--tinta-2); font-size: 16px; max-width: 30ch; min-height: 3.1em; }
+.progreso { list-style: none; display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 16px; max-width: 300px; }
+.progreso li { height: 6px; border-radius: 3px; background: rgba(21, 22, 37, 0.18); transition: background .3s; }
+.progreso li.si { background: var(--carbon); }
+.progreso li.ahora { background: var(--naranja); box-shadow: inset 0 0 0 1.5px var(--carbon); }
+.estado.cerrado .progreso { display: none; }
+.estado__final { display: none; align-items: center; gap: 18px; margin-top: 18px; }
+.estado.cerrado .estado__final { display: flex; }
+.estado__final b { font: 600 28px/1 var(--titulo); }
+
+.recibo { position: absolute; right: var(--lado); bottom: 56px; z-index: 2; width: 244px; padding: 16px 16px 24px; background: var(--crema); font: 400 10.5px/1.55 var(--mono); text-transform: uppercase; color: var(--tinta); box-shadow: 0 0 0 1px var(--linea), 0 1px 2px rgba(21, 22, 37, 0.08), 0 18px 32px -18px rgba(21, 22, 37, 0.35); transform: rotate(1.5deg); transition: opacity .4s, transform .5s var(--salida);
+  -webkit-mask: radial-gradient(circle 5px at 50% 100%, #0000 98%, #000) 50% 100% / 13px 100% repeat-x; mask: radial-gradient(circle 5px at 50% 100%, #0000 98%, #000) 50% 100% / 13px 100% repeat-x; }
+.recibo.oculto { opacity: 0; transform: translateY(16px) rotate(3deg); }
+.recibo__marca { text-align: center; font-weight: 700; font-size: 12px; letter-spacing: .04em; }
+.recibo hr { border: 0; border-top: 1px dashed rgba(21, 22, 37, 0.3); margin: 9px 0; }
+.recibo ul { list-style: none; }
+.recibo li { display: flex; gap: 6px; align-items: baseline; color: var(--tinta-3); transition: color .25s; }
+.recibo li i { font-style: normal; min-width: 26px; white-space: nowrap; color: var(--tinta-3); }
+.recibo li.ahora { color: var(--carbon); font-weight: 700; background: var(--naranja); margin: 0 -6px; padding: 0 6px; border-radius: 3px; }
+.recibo li.ahora .p { border-color: rgba(21, 22, 37, 0.35); }
+.recibo li.ahora i::before { content: ''; }
+.recibo li.ahora i { color: var(--carbon); }
+.recibo li .p { flex: 1; border-bottom: 1px dotted rgba(21, 22, 37, 0.22); transform: translateY(-3px); }
+.recibo li b { width: 10px; text-align: right; color: var(--carbon); opacity: 0; transform: scale(1.8); transition: opacity .15s, transform .35s var(--muelle); }
+.recibo li.si { color: var(--tinta); }
+.recibo li.si b { opacity: 1; transform: none; }
+.recibo__total { display: flex; justify-content: space-between; font-weight: 700; font-size: 12px; }
+.recibo__total span:last-child { color: var(--carbon); }
+.sello { position: absolute; left: 30%; bottom: 12px; padding: 4px 10px; border: 2px solid var(--carbon); border-radius: 6px; background: var(--naranja); color: var(--carbon); font: 700 18px/1 var(--mono); letter-spacing: .06em; transform: rotate(-12deg) scale(1.7); opacity: 0; transition: transform .4s var(--muelle), opacity .15s; }
+.sello.si { opacity: 1; transform: rotate(-12deg) scale(1); }
+
+/* ───── Acto 3: la carta ───── */
+.carta { padding: clamp(80px, 9vw, 128px) var(--lado); }
+.carta__cabeza { display: flex; justify-content: space-between; align-items: end; gap: 24px; max-width: 1180px; margin: 0 auto 36px; }
+.carta__cabeza h2 { font-size: clamp(44px, 5vw, 72px); line-height: 1; margin-top: 10px; }
+.carta__cabeza p { color: var(--tinta-2); max-width: 36ch; }
+.hoja { max-width: 1180px; margin: 0 auto; background: var(--crema); border-radius: 22px; outline: 1px solid var(--linea); padding: clamp(28px, 4vw, 56px); box-shadow: 0 30px 60px -40px rgba(21, 22, 37, 0.3); display: grid; grid-template-columns: 1fr 1fr; gap: 0 clamp(40px, 5vw, 80px); }
+.familia + .familia { margin-top: 44px; }
+.familia h3 { font-size: 26px; line-height: 1.1; padding-bottom: 12px; border-bottom: 1.5px solid var(--tinta); display: flex; justify-content: space-between; align-items: baseline; }
+.familia h3 small { font: 400 12px/1 var(--mono); color: var(--tinta-3); text-transform: uppercase; }
+.plato { display: grid; grid-template-columns: 1fr auto; gap: 4px 20px; padding: 14px 0; border-bottom: 1px solid var(--linea); }
+.plato:last-child { border-bottom: 0; }
+.plato__nombre { font: 600 17px/1.3 var(--texto); }
+.plato__precio { font: 500 16px/1.3 var(--texto); font-variant-numeric: tabular-nums; }
+.plato__desc { grid-column: 1; font-size: 15px; line-height: 1.5; color: var(--tinta-2); max-width: 46ch; }
+
+/* Fotos de la casa: sección oscura para el contraste */
+.casa { background: var(--tinta); color: var(--crema); padding: clamp(72px, 8vw, 112px) var(--lado); }
+.casa__cabeza { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 32px; }
+.casa h2 { font-size: clamp(36px, 4vw, 56px); line-height: 1.05; }
+.casa .antetitulo { color: rgba(252, 243, 219, 0.66); }
+.galeria { display: grid; grid-template-columns: 1.3fr 1fr 1fr; grid-template-rows: 260px 260px; gap: 12px; }
+.galeria figure { position: relative; border-radius: 16px; overflow: hidden; }
+.galeria figure:first-child { grid-row: span 2; }
+.galeria img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--salida); }
+.galeria figure:hover img { transform: scale(1.04); }
+.galeria figcaption { position: absolute; left: 12px; bottom: 12px; padding: 7px 12px; border-radius: 999px; background: var(--crema); color: var(--carbon); font: 600 14px/1 var(--texto); }
+
+/* Pie */
+.pie { border-top: 1px solid var(--linea); padding: 56px var(--lado) 28px; display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; gap: 32px; font-size: 15px; }
+.pie img { height: 44px; width: auto; margin-bottom: 16px; }
+.pie h4 { font: 600 14px/1 var(--texto); margin-bottom: 12px; }
+.pie ul { list-style: none; display: grid; gap: 8px; color: var(--tinta-2); }
+.pie__legal { grid-column: 1 / -1; display: flex; justify-content: space-between; padding-top: 18px; margin-top: 12px; border-top: 1px solid var(--linea); font: 400 11px/1 var(--mono); color: var(--tinta-3); text-transform: uppercase; }
+
+.visitanos { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 5vw, 72px); align-items: center; background: var(--crema); padding: clamp(64px, 8vw, 112px) var(--lado); scroll-margin-top: 60px; }
+.bloque-amarillo { background: var(--amarillo); border-radius: 22px; padding: clamp(24px, 3vw, 36px); max-width: 520px; }
+.bloque-amarillo address { font: 600 clamp(26px, 2.6vw, 36px)/1.15 var(--titulo); font-style: normal; margin-bottom: 22px; }
+.bloque-amarillo .horario { max-width: none; }
+.visitanos h2 { font-size: clamp(36px, 4.2vw, 60px); line-height: 1.05; margin: 12px 0 24px; max-width: 14ch; }
+.visitanos .antetitulo, .visitanos__nota { color: var(--tinta-2); }
+.horario { display: grid; gap: 0; max-width: 420px; border-top: 1.5px solid var(--carbon); }
+.horario div { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(21, 22, 37, 0.25); font-size: 17px; }
+.horario dt { font-weight: 600; }
+.visitanos__nota { margin-top: 14px; font-size: 14px; }
+.visitanos__acciones { display: flex; align-items: center; gap: 22px; margin-top: 28px; flex-wrap: wrap; }
+.pedir--grande { height: 54px; padding: 0 28px; font-size: 17px; }
+.oscuro { display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 26px; border-radius: 999px; background: var(--carbon); color: var(--crema); font: 600 16px/1 var(--texto); transition: transform .35s var(--muelle); }
+.oscuro:hover { transform: translateY(-1px); }
+.oscuro svg, .pedir svg { width: 15px; height: 15px; }
+.visitanos__foto { border-radius: 22px; overflow: hidden; aspect-ratio: 4 / 3; }
+.visitanos__foto img { width: 100%; height: 100%; object-fit: cover; }
+section[id] { scroll-margin-top: 84px; }
+.barra { display: none; }
+
+/* ───── Móvil: composición propia ───── */
+@media (max-width: 900px) {
+  .cabecera { grid-template-columns: auto 1fr auto; gap: 12px; padding: 10px var(--lado); }
+  .cabecera nav { display: none; }
+  .cabecera__logo img { height: 34px; }
+  .cabecera .pedir { display: none; }
+  .cabecera { grid-template-columns: auto 1fr; }
+  .portada__acciones { display: none; }
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .carta { padding-bottom: 64px; }
+  .visitanos { grid-template-columns: 1fr; }
+  .visitanos__foto { order: -1; }
+  .visitanos__acciones .pedir { flex: 1 1 100%; }
+  .progreso { max-width: none; }
+  .portada { min-height: 0; }
+  .portada__cuerpo { grid-template-columns: 1fr; grid-template-rows: auto auto; }
+  .portada__escena { order: -1; height: 46svh; }
+  .portada__sol { width: 92vw; right: -10vw; top: 54%; }
+  .portada__mano { right: -6vw; height: 100%; bottom: -2%; }
+  .portada__texto { padding: 18px 0 24px; }
+  .portada__texto h1 { font-size: clamp(44px, 12.5vw, 60px); margin: 10px 0 12px; }
+  .portada__texto p { font-size: 16px; margin-bottom: 0; }
+  .familias { grid-template-columns: 1fr 1fr; }
+  .familias a { padding: 14px var(--lado); font-size: 16px; }
+  .familias a:nth-child(3) { border-left: 0; }
+  .familias a:nth-child(n+3) { border-top: 1px solid var(--linea); }
+  .armado__fija { top: 60px; height: calc(100svh - 60px); }
+  .armado__cabeza { top: 20px; }
+  .armado__cabeza h2 { font-size: 28px; }
+  .respaldo { top: 38%; width: 70vw; }
+  .estado { left: var(--lado); right: var(--lado); width: auto; bottom: calc(96px + env(safe-area-inset-bottom)); }
+  .estado__nombre { font-size: clamp(28px, 8vw, 36px); margin: 8px 0 6px; }
+  .estado__desc { font-size: 14px; min-height: 0; }
+  .estado__final b { font-size: 24px; }
+  .recibo { display: none; }
+  .recibo__cabeza, .recibo__pie { display: none; }
+  .recibo li .p { display: none; }
+  .sello { font-size: 13px; top: -10px; right: 6px; }
+  .carta__cabeza { flex-direction: column; align-items: start; }
+  .hoja { grid-template-columns: 1fr; padding: 22px 18px; border-radius: 18px; }
+  .hoja > div + div { margin-top: 44px; }
+  .plato__nombre { font-size: 16px; }
+  .galeria { grid-template-columns: 1fr 1fr; grid-template-rows: 220px 160px 160px; }
+  .galeria figure:first-child { grid-column: span 2; grid-row: auto; }
+  .pie { grid-template-columns: 1fr 1fr; padding-bottom: 24px; }
+  .pie__legal { flex-direction: column; gap: 6px; }
+  .barra { display: flex; position: fixed; z-index: 40; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); gap: 8px; padding: 6px; border-radius: 999px; background: rgba(252, 243, 219, 0.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 0 0 1px var(--linea), 0 10px 30px -12px rgba(21, 22, 37, 0.35); }
+  .barra a:first-child { flex: 1; display: grid; place-items: center; font: 600 15px/1 var(--texto); }
+  .barra .pedir { flex: 1.4; height: 46px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+
+<header class="cabecera">
+  <a class="cabecera__logo" href="#" aria-label="Le Bagel Club, inicio"><img src="img/logo-carbon.webp" alt="Le Bagel Club"></a>
+  <nav aria-label="Secciones"><a href="#armado">Así se arma</a><a href="#carta">Carta</a><a href="#visitanos">Visítanos</a></nav>
+  <a class="pedir" data-maps href="#" target="_blank" rel="noopener">Cómo llegar</a>
+</header>
+
+<main>
+  <!-- Acto 1: el producto terminado -->
+  <section class="portada" aria-labelledby="titulo">
+    <div class="portada__cuerpo">
+      <div class="portada__texto">
+        <span class="estado-local" data-estado><i></i><span>Horario en Visítanos</span></span>
+        <h1 id="titulo">Bagels de verdad, desde 2005.</h1>
+        <p>Hervidos, horneados y abiertos por la mitad. Con café y panadería del día, en Chapinero.</p>
+        <div class="portada__acciones">
+          <a class="pedir" data-maps href="#" target="_blank" rel="noopener">Cómo llegar <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 11l6-6M6 5h5v5"/></svg></a>
+          <a class="secundario" href="#carta">Ver carta</a>
+        </div>
+      </div>
+      <div class="portada__escena" aria-hidden="true"><div class="portada__sol"></div><img class="portada__mano" src="img/bagel-mano.webp" alt="" fetchpriority="high"></div>
+    </div>
+    <nav class="familias" aria-label="La carta por familias">
+      <a href="#familia-bagels">Bagels <span>11</span></a>
+      <a href="#familia-cafe">Café <span>7</span></a>
+      <a href="#familia-panaderia">Panadería <span>8</span></a>
+      <a href="#familia-combos">Combos <span>3</span></a>
+    </nav>
+  </section>
+
+  <!-- Acto 2: cómo se arma -->
+  <section class="armado" id="armado" aria-label="Así se arma el Pollo Plancha">
+    <div class="armado__fija">
+      <div class="armado__cabeza">
+        <div class="antetitulo">Así se arma</div>
+        <h2>Siete capas,<br>de abajo arriba</h2>
+      </div>
+      <canvas id="lienzo" aria-hidden="true"></canvas>
+      <img class="respaldo" src="img/p-pollo-560.webp" alt="">
+
+      <div class="estado" aria-live="polite">
+        <div class="estado__num">Base del bagel</div>
+        <span class="estado__nombre">Bagel de sésamo</span>
+        <p class="estado__desc">Hervido y horneado. Se abre por la mitad.</p>
+        <ol class="progreso" aria-hidden="true"></ol>
+        <div class="estado__final"><b>$ 24.950</b><a class="enlace" href="#carta">Ver la carta →</a></div>
+      </div>
+
+      <div class="recibo oculto" aria-hidden="true">
+        <div class="recibo__cabeza">
+          <div class="recibo__marca">Ficha de preparación</div>
+          <div style="text-align:center">Pollo Plancha · 7 capas</div>
+          <hr>
+        </div>
+        <ul></ul>
+        <hr>
+        <div class="recibo__total"><span>Precio</span><span id="total">$ 24.950</span></div>
+        <div class="sello">Listo</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="casa" aria-labelledby="titulo-casa">
+    <div class="casa__cabeza">
+      <div>
+        <div class="antetitulo">De la casa</div>
+        <h2 id="titulo-casa">Lo que sale del mostrador</h2>
+      </div>
+    </div>
+    <div class="galeria">
+      <figure><img src="img/p-salmon-1200.webp" alt="" loading="lazy"><figcaption>Salmón</figcaption></figure>
+      <figure><img src="img/tipico-1200.webp" alt="" loading="lazy"><figcaption>Típico</figcaption></figure>
+      <figure><img src="img/latte-1200.webp" alt="" loading="lazy"><figcaption>Latte</figcaption></figure>
+      <figure><img src="img/p-panaderia-1200.webp" alt="" loading="lazy"><figcaption>Panadería</figcaption></figure>
+      <figure><img src="img/p-lematin-1200.webp" alt="" loading="lazy"><figcaption>Le Matin</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- Acto 3: la carta -->
+  <section class="carta" id="carta" aria-labelledby="titulo-carta">
+    <div class="carta__cabeza">
+      <div>
+        <div class="antetitulo">La carta</div>
+        <h2 id="titulo-carta">Bagels, café y panadería</h2>
+      </div>
+      <p>Pide en el mostrador o en la mesa con el código QR. Precios en pesos colombianos.</p>
+    </div>
+    <div class="hoja" id="hoja"></div>
+  </section>
+
+  <section class="visitanos" id="visitanos" aria-labelledby="titulo-visitanos">
+    <div class="visitanos__texto">
+      <div class="antetitulo">Visítanos</div>
+      <h2 id="titulo-visitanos">Ven al local, en Chapinero</h2>
+      <div class="bloque-amarillo">
+        <address>Cra. 14 #79-47, piso 1<br>Bogotá</address>
+        <dl class="horario">
+          <div><dt>Lunes</dt><dd>9 a.m. – 8 p.m.</dd></div>
+          <div><dt>Martes a domingo</dt><dd>10 a.m. – 6 p.m.</dd></div>
+        </dl>
+        <p class="visitanos__nota">Horario y opiniones según la ficha de Google Maps · 5,0 con 33 opiniones.</p>
+      </div>
+      <div class="visitanos__acciones">
+        <a class="pedir pedir--grande" data-maps href="#" target="_blank" rel="noopener">Abrir en Google Maps <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 11l6-6M6 5h5v5"/></svg></a>
+        <a class="enlace" data-rappi href="#" target="_blank" rel="noopener" hidden>Pedir por Rappi ↗</a>
+      </div>
+    </div>
+    <figure class="visitanos__foto"><img src="img/aviso-open.webp" alt="Cartel de Le Bagel Club en la entrada" loading="lazy"></figure>
+  </section>
+</main>
+
+<footer class="pie">
+  <div><img src="img/logo-carbon.webp" alt="Le Bagel Club"><p>Cra. 14 #79-47, piso 1<br>Bogotá</p></div>
+  <div><h4>Visítanos</h4><ul><li><a data-maps href="#" target="_blank" rel="noopener">Abrir en Google Maps</a></li><li>Lun 9 a.m. – 8 p.m.</li><li>Mar a dom 10 a.m. – 6 p.m.</li></ul></div>
+  <div><h4>La casa</h4><ul><li><a href="#carta">Carta</a></li><li><a href="#armado">Así se arma</a></li></ul></div>
+  <div><h4>En el local</h4><ul><li>Pide en el mostrador</li><li>o en la mesa con el QR</li><li data-rappi-pie hidden><a data-rappi href="#" target="_blank" rel="noopener">Domicilios por Rappi ↗</a></li></ul></div>
+  <div class="pie__legal"><span>Le Bagel Club · Bogotá · desde 2005</span><span>Fotos de referencia</span></div>
+</footer>
+
+<nav class="barra" aria-label="Acciones">
+  <a href="#carta">Carta</a>
+  <a class="pedir" data-maps href="#" target="_blank" rel="noopener">Cómo llegar</a>
+</nav>
+
+<script type="module">
+// Enlaces verificados el 18-11-2026.
+const MAPS = 'https://maps.google.com/?cid=5617264684045446991';   // ficha «Le Bagel Club», Cra. 14 #79-47 Piso 1, Bogotá
+const RAPPI = 'https://www.rappi.com.co/restaurantes/900496488-lebagel-club';   // «Lebagel Club - Chapinero», Carrera 14 79-47 (verificado el 18-11-2026)
+document.querySelectorAll('[data-maps]').forEach(a => a.href = MAPS);
+if (RAPPI) { document.querySelectorAll('[data-rappi]').forEach(a => { a.href = RAPPI; a.hidden = false; }); document.querySelectorAll('[data-rappi-pie]').forEach(e => e.hidden = false); }
+
+// Abierto o cerrado según la ficha de Google Maps: lunes 9–20, martes a domingo 10–18 (hora de Bogotá).
+(() => {
+  const ahora = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+  const dia = ahora.getDay(), [abre, cierra] = dia === 1 ? [9, 20] : [10, 18];
+  const h = ahora.getHours() + ahora.getMinutes() / 60, abierto = h >= abre && h < cierra;
+  const hora = n => (n > 12 ? n - 12 : n) + (n >= 12 ? ' p.m.' : ' a.m.');
+  const siguiente = h < abre ? abre : (dia === 0 ? 9 : 10);
+  document.querySelectorAll('[data-estado]').forEach(e => { e.classList.toggle('abierto', abierto); e.querySelector('span').textContent = abierto ? `Abierto ahora · hasta las ${hora(cierra)}` : `Cerrado · abre a las ${hora(siguiente)}`; });
+})();
+
+// Fuente del armado: si existe fotogramas/secuencia.json (stop motion, ver stopmotion/GUIA-SESION.md)
+// se usan las fotos; si no, el modelo 3D.
+const SECUENCIA = await fetch('fotogramas/secuencia.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
+
+// Mismo orden que las capas de escena.js, de abajo arriba.
+const PASOS = [
+  ['Queso crema', 'Untado de borde a borde sobre la base.'],
+  ['Pepperoni', 'Rodajas finas que se doblan con el calor.'],
+  ['Tomate', 'En rodajas, fresco.'],
+  ['Pechuga a la plancha', 'Entera, gruesa y dorada.'],
+  ['Mozzarella', 'En tajadas, sobre el pollo caliente.'],
+  ['Aguacate', 'En medialunas, abierto en abanico.'],
+  ['Salsa de la casa', 'La receta se queda en la cocina.'],
+];
+// Momentos del recorrido (0 a 1). Con el 3D salen de la línea de tiempo de escena.js;
+// con el stop motion, de secuencia.json: cada línea se marca en la foto en que su capa queda asentada.
+// El fotograma que se ve es el más cercano a p: se adelanta medio fotograma para que la línea y la foto coincidan.
+const MEDIO = SECUENCIA ? 0.5 / (SECUENCIA.total - 1) : 0;
+const TIEMPOS = SECUENCIA ? {
+  inicio: k => (SECUENCIA.capas[k]?.inicio ?? 2) - MEDIO,
+  aterriza: k => (SECUENCIA.capas[k]?.aterriza ?? 2) - MEDIO,
+  cierre: SECUENCIA.cierre - MEDIO, ficha: SECUENCIA.conFicha - MEDIO,
+} : {
+  inicio: k => 0.17 + k * 0.095,
+  aterriza: k => 0.17 + k * 0.095 + 0.078,   // 78 % de la ventana de cada capa en escena.js
+  cierre: 0.948, ficha: 0.12,                // la tapa termina de bajar
+};
+const inicioPaso = TIEMPOS.inicio, aterriza = TIEMPOS.aterriza, CIERRE = TIEMPOS.cierre;
+
+const recibo = document.querySelector('.recibo'), lista = recibo.querySelector('ul');
+lista.innerHTML = PASOS.map(([n], k) => `<li><i>${String(k + 1).padStart(2, '0')}</i><span>${n}</span><span class="p"></span><b>✓</b></li>`).join('');
+const progreso = document.querySelector('.progreso');
+progreso.innerHTML = PASOS.map(() => '<li></li>').join('');
+const barras = [...progreso.children];
+const filas = [...lista.children];
+const estado = document.querySelector('.estado'), total = document.getElementById('total'), sello = recibo.querySelector('.sello');
+
+// Motor 3D
+const lienzo = document.getElementById('lienzo'), respaldo = document.querySelector('.respaldo');
+let motor = null;
+try {
+  const m = await import('./escena.js');
+  const movil = matchMedia('(max-width: 900px)').matches;
+  motor = SECUENCIA
+    ? m.crearSecuencia(lienzo, { total: SECUENCIA.total, ruta: `fotogramas/${movil ? 'movil' : 'escritorio'}/`, encaje: movil ? 'arriba' : 'cubrir' })
+    : m.crearEscena(lienzo, { centroMovil: 0.16 });
+  document.documentElement.dataset.armado = SECUENCIA ? 'fotos' : '3d';
+  window.__texturas = m.texturasCargadas;
+  requestAnimationFrame(() => requestAnimationFrame(() => { lienzo.classList.add('listo'); respaldo.classList.add('fuera'); }));
+} catch (e) { console.warn('Sin 3D, se queda la foto', e); }
+
+// La interfaz sigue a lo que se ve en el 3D, cuadro a cuadro.
+let clave = '';
+function pintar(p) {
+  let rotulo = -1; PASOS.forEach((_, k) => { if (p >= inicioPaso(k) + 0.01) rotulo = k; });
+  const impresas = PASOS.filter((_, k) => p >= aterriza(k)).length;
+  const cerrado = p >= CIERRE, conRecibo = p >= TIEMPOS.ficha;
+  const nueva = [rotulo, impresas, cerrado, conRecibo].join();
+  if (nueva === clave) return;
+  const rotuloAntes = clave.split(',')[0], cerradoAntes = clave.split(',')[2]; clave = nueva;
+  recibo.classList.toggle('oculto', !conRecibo);
+  filas.forEach((f, k) => { f.classList.toggle('si', k < impresas); f.classList.toggle('ahora', k === rotulo && k >= impresas && !cerrado); });
+  barras.forEach((b, k) => { b.classList.toggle('si', k < impresas); b.classList.toggle('ahora', k === rotulo && k >= impresas); });
+  sello.classList.toggle('si', cerrado);
+  estado.classList.toggle('cerrado', cerrado);
+  if (String(rotulo) === rotuloAntes && String(cerrado) === cerradoAntes) return;
+  const [num, nombre, desc] = cerrado ? ['Ficha completa', 'Así queda el Pollo Plancha', 'Siete capas en un bagel de sésamo.']
+    : rotulo < 0 ? ['Base del bagel', 'Bagel de sésamo', 'Hervido y horneado. Se abre por la mitad.']
+    : [`Capa ${rotulo + 1} de ${PASOS.length}`, ...PASOS[rotulo]];
+  estado.querySelector('.estado__num').textContent = num;
+  const caja = estado.querySelector('.estado__nombre');
+  caja.innerHTML = nombre.split(' ').map(w => `<span class="l" style="opacity:0;transform:translateY(.3em)">${w}</span>`).join(' ');
+  estado.querySelector('.estado__desc').textContent = desc;
+  requestAnimationFrame(() => requestAnimationFrame(() => caja.querySelectorAll('.l').forEach((l, k) => { l.style.transitionDelay = `${k * 50}ms`; l.style.opacity = 1; l.style.transform = 'none'; })));
+}
+motor?.alCuadro(pintar);
+
+const seccion = document.getElementById('armado'), cabecera = document.querySelector('.cabecera');
+function alDesplazar(inmediato = false) {
+  const r = seccion.getBoundingClientRect(), recorrido = seccion.offsetHeight - innerHeight;
+  const p = Math.min(1, Math.max(0, -r.top / recorrido));
+  motor ? motor.progreso(p, inmediato) : pintar(p);
+  motor?.pausar(r.bottom < 0 || r.top > innerHeight);
+  cabecera.classList.toggle('con-borde', scrollY > 8);
+}
+addEventListener('scroll', () => alDesplazar(), { passive: true });
+addEventListener('resize', () => motor?.tamano());
+window.__irA = p => { const t = seccion.offsetHeight - innerHeight; scrollTo(0, seccion.offsetTop + p * t); alDesplazar(true); };
+alDesplazar(true);
+
+// Carta: categorías y precios de la carta actual.
+const CARTA = [
+  ['Bagels', [
+    ['Le Matin', 'Huevos, queso crema y tocineta.', 15950],
+    ['Pollo Plancha', 'Pollo a la plancha, pepperoni, mozzarella, tomate, aguacate, queso crema y salsa de la casa.', 24950, true],
+    ['Dip de Pollo', 'Pollo, queso crema, cebolla roja, tomate y tocineta.', 24950],
+    ['Típico', 'Pernil de cerdo, queso sabana, aguacate, cebolla encurtida, queso crema y salsa de maíz dulce.', 24950],
+    ['Italien', 'Salami, pepperoni, ricotta, tomates secos, pesto y queso crema.', 27950],
+    ['Mediterráneo', 'Jamón serrano, chorizo, pimentones, pepinillos y queso crema.', 27950],
+    ['Salmón', 'Salmón, aguacate, pepino, alcaparras, queso crema y salsa de la casa.', 29950],
+    ['Dip de Salmón', 'Salmón, cebolla, pepino y queso crema.', 27950],
+    ['Vegetariano', 'Aguacate, tomate, pepino, pepinillos, pesto y queso crema.', 15950],
+    ['Bagel Blea', 'Arequipe, queso costeño, mermelada y chantilly.', 11950],
+    ['Frosting Club', 'Durazno, frosting y leche condensada.', 11950],
+  ]],
+  ['Combos', [['Le Matin en combo', 'Le Matin con bebida.', 19000], ['Combo Clásico', 'Dip de Pollo, Típico o Pollo Plancha, con bebida.', 28000], ['Combo Premium', 'Italien o Mediterráneo, con bebida.', 31000]]],
+  ['Café', [['Espresso', '', 4000], ['Americano', '', 6000], ['Latte 7 onzas', '', 7000], ['Latte 9 onzas', '', 8000], ['Cappuccino', '', 8000], ['Chocolate', '', 8000], ['Aromática', '', 8000]]],
+  ['Panadería', [['Croissant', '', 6000], ['Croissant de chocolate', '', 7000], ['Cinnamon Roll', '', 7000], ['Plie arándanos', '', 8000], ['Croissant de almendras', '', 12000], ['Galleta', '', 6000], ['Torta', '', 8000], ['Cheesecake', '', 9500]]],
+  ['Bebidas', [['Gaseosa', '', 6000], ['Agua', '', 5000], ['Limonada natural', '', 7000], ['Club Colombia', '', 8000], ['Stella Artois', '', 10000], ['Corona', '', 10000]]],
+];
+const pesos = n => '$ ' + n.toLocaleString('es-CO');
+const ancla = n => 'familia-' + n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const familia = ([nombre, platos]) => `<section class="familia" id="${ancla(nombre)}"><h3>${nombre}<small>${platos.length} opciones</small></h3>${platos.map(([n, d, p, dest]) =>
+  `<div class="plato${dest ? ' plato--destacado' : ''}"><span class="plato__nombre">${n}</span><span class="plato__precio">${pesos(p)}</span>${d ? `<span class="plato__desc">${d}</span>` : ''}</div>`).join('')}</section>`;
+// Dos columnas: bagels a la izquierda; combos, café, panadería y bebidas a la derecha.
+document.getElementById('hoja').innerHTML = `<div>${familia(CARTA[0])}</div><div>${CARTA.slice(1).map(familia).join('')}</div>`;
+</script>
+</body>
+</html>
